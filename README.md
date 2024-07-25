@@ -5,6 +5,7 @@ POSSUMS produces Monte Carlo simulations (based on user-specified values) and au
 After cloning the repository one can:
 1. Run the python file titled "brompsimulator.py", and this should automatically produce the GUI necessary to run the algorithm.
 2. Inside of the Executable Information folder, pan to the dist/brompsimulator directory and the brompsimulator file should be an executable that can be used to run the algorithm.
+
 For Macbook users:
 If your computer says that the executable cannot be ran because it is from an unidentified developer then you can:
 1. Go to Systems Settings/Systems Preferences
