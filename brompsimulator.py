@@ -5,49 +5,85 @@ import math
 
 # Event Class
 class Event:
+    '''
+    Summary: Constructor to population an event object
+    '''
     def __init__(self, name, duration, proportion):
         self.name = name
         self.duration = duration
         self.proportion = proportion
 
+    '''
+    Summary: Return the name of the event
+    '''
     def get_name(self):
         return self.name
 
+    '''
+    Summary: Return the duration of the event
+    '''
     def get_duration(self):
         return self.duration
 
+    '''
+    Summary: Return the proportion of the event
+    '''
     def get_proportion(self):
         return self.proportion
 
+    '''
+    Summary: Return a formatted string representation of an event
+    '''
     def __str__(self):
         return f"{self.name} - {self.duration} - {self.proportion}"
 
-# Class Run Event Data
+# Run Event Data Class
 class ClassRunEventData:
+    '''
+    Summary: Constructor to populate a run event data class object
+    '''
     def __init__(self, total_tally, percentage):
         self.total_tally = total_tally
         self.percentage = percentage
 
+    '''
+    Summary: Return the total tally of the event's data
+    '''
     def get_total_tally(self):
         return self.total_tally
 
+    '''
+    Summary: Return the percentage
+    '''
     def get_percentage(self):
         return self.percentage
 
+# Simulator Class
 class BROMPSimulator:
+    '''
+    Summary: Constructor to populate a simulator object
+    '''
     def __init__(self, events, timesPerObservation, numberOfStudents, totalObservationTime):
         self.events = events
         self.timesPerObservation = timesPerObservation
         self.numberOfStudents = numberOfStudents
         self.totalObservationTime = totalObservationTime
         self.randomGenerator = random.Random()
-
+    
+    '''
+    Summary: Run the simulation
+    Parameter: output_file - the file to output the results to
+    '''
     def run(self, output_file):
         if app.repeated_simulation_check.get():
             self.run_repeated_simulation(output_file)
         else:
             self.run_single_simulation(output_file)
     
+    '''
+    Summary: Run the simulation multiple times as specified by user
+    Parameter: output_file - the file to output the results
+    '''
     def run_repeated_simulation(self, output_file):
         number_of_simulations = int(app.repeated_simulation_entry.get())
         cumulative_run_data = []
@@ -58,9 +94,14 @@ class BROMPSimulator:
                 student_observations = self.compute_observation_results(student_states, time_per_observation)
                 all_observation_time_data[time_per_observation] = self.compute_class_level_results(student_observations)
             cumulative_run_data.append(all_observation_time_data)
-        self.output_cummulative_results(cumulative_run_data, output_file)
+        self.output_cumulative_results(cumulative_run_data, output_file)
         
-    def output_cummulative_results(self, cumulative_run_data, output_file):
+    '''
+    Summary: Output the cumulative results to a file, using specific formatting and calculations
+    Parameter: cumulative_run_data - the cumulative data collected throughout the simulation
+    Parameter: output_file - the file to output the results
+    '''
+    def output_cumulative_results(self, cumulative_run_data, output_file):
         with open(output_file, 'w') as file:
             for time_per_observation in self.timesPerObservation:
                 file.write("Time per observation = " + str(time_per_observation))
@@ -108,6 +149,10 @@ class BROMPSimulator:
                     simulationIndex += 1
                 file.write("\r\n")
     
+    '''
+    Summary: Compute the results at the level of the class
+    Parameter: student_observations - the observations made by the students
+    '''
     def compute_class_level_results(self, student_observations):
         number_of_students = len(student_observations)
         total_class_tallies = {}
@@ -146,6 +191,11 @@ class BROMPSimulator:
             class_level_data[event] = ClassRunEventData(total_class_tallies[event], average_class_percentages[event])
         
         return class_level_data
+    
+    '''
+    Summary: Run a single simulation
+    Parameter: output_file - the file to output the results
+    '''
     def run_single_simulation(self, output_file):
         with open(output_file, 'w') as file:
             student_states = self.generate_student_states()
@@ -154,11 +204,22 @@ class BROMPSimulator:
             file.write("Randomized events:\r\n\r\n")
             self.write_student_states(student_states, file)
 
+    '''
+    Summary: Calls functions to compute and output the observation results obtained from the simulation
+    Parameter: student_states - the states of each student, based on the simulation
+    Parameter: time_per_observation - the time per observation
+    Parameter: file - the file to output the results
+    '''
     def compute_and_output_observation_results(self, student_states, time_per_observation, file):
         student_observations = self.compute_observation_results(student_states, time_per_observation)
         real_event_counts = self.compute_real_event_counts(student_states)
         self.write_observation_results(real_event_counts, student_observations, time_per_observation, file)
 
+    '''
+    Summary: Computes the observation results obtained from the simulation
+    Parameter: student_states - the states of each student, based on the simulation
+    Parameter: time_per_observation - the time per observation
+    '''
     def compute_observation_results(self, student_states, time_per_observation):
         assert len(student_states) == self.numberOfStudents
         current_time_index = 0
@@ -177,6 +238,11 @@ class BROMPSimulator:
             current_time_index += time_per_observation
             current_student_index = (current_student_index + 1) % self.numberOfStudents
         return student_observations
+    
+    '''
+    Summary: Compute the real event counts
+    Parameter: student_states - the states of each student, based on the simulation
+    '''
     def compute_real_event_counts(self, student_states):
         real_event_counts = {}
         for event in self.events:
@@ -184,6 +250,14 @@ class BROMPSimulator:
         for event in student_states[0]:
             real_event_counts[event] = real_event_counts[event] + 1
         return real_event_counts
+    
+    '''
+    Summary: Write the observation results to a file
+    Parameter: real_event_counts - the real event counts
+    Parameter: student_observations - the observations for each student
+    Parameter: time_per_observation - the time per observation
+    Parameter: file - the file to output the results
+    '''
     def write_observation_result(self, real_event_counts, student_observations, time_per_observation, file):
         file.write("Time per observation = " + str(time_per_observation))
         file.write("\r\n\r\n")
@@ -234,11 +308,19 @@ class BROMPSimulator:
             file.write(",," + str(float(real_event_counts[event]) / float(number_of_target_observations)))
             file.write("\r\n")
         file.write("\r\n\r\n")
+    
+    '''
+    Summary: Function to generate the states for each student
+    '''
     def generate_students_states(self):
         student_states = []
         for i in range(self.numberOfStudents):
             student_states.append(self.generate_states_for_one_student())
         return student_states
+    
+    '''
+    Summary: Function to generate the state for a single student, executing the Monte Carlo Simulation
+    '''
     def generate_states_for_one_student(self):
         states = []
         nonRandomizedEvents = []
@@ -258,6 +340,11 @@ class BROMPSimulator:
 
         return states
     
+    '''
+    Summary: Function to write the student states to a file
+    Parameter: student_states - the states of each student
+    Parameter: file - the file to output the student states
+    '''
     def write_student_states(self, student_states, file):
         file.write("time")
         for i in range(len(student_states)):
@@ -270,11 +357,12 @@ class BROMPSimulator:
             for studentIndex in range(len(student_states)):
                 file.write("," + student_states[studentIndex][timeIndex].get_name())
             file.write("\r\n")
-                                  
 
-            
-
+# Event Manager Class to handle the GUI
 class EventManager:
+    '''
+    Summary: Constructor to populate an event manager object
+    '''
     def __init__(self, root):
         self.root = root
         self.root.title("POSSUMS 1.0")
@@ -287,6 +375,9 @@ class EventManager:
         self.init_simulation_parameters()
         self.init_run_interface()
 
+    '''
+    Summary: Initialize the event input fields into the GUI
+    '''
     def init_event_input_fields(self):
         event_label = tk.Label(self.root, text="Event:", anchor='e')
         event_label.place(x=20, y=60, width=80, height=30)
@@ -323,6 +414,9 @@ class EventManager:
         self.proportion_entry.bind("<KeyRelease>", self.validate_entries)
         self.event_listbox.bind("<<ListboxSelect>>", self.validate_listbox_selection)
 
+    '''
+    Summary: Initialize the simulation parameters input fields into the GUI
+    '''
     def init_simulation_parameters(self):
         students_label = tk.Label(self.root, text="Number of students:", anchor='e')
         students_label.place(x=20, y=350, width=130, height=30)
@@ -358,7 +452,9 @@ class EventManager:
         self.total_observation_time_entry.bind("<FocusOut>", self.validate_entries)
         self.time_per_observation_entry.bind("<FocusOut>", self.validate_entries)
 
-
+    '''
+    Summary: Initialize the run interface into the GUI, allowing you to select a file to save the output to
+    '''
     def init_run_interface(self):
         self.repeated_simulation_check = tk.IntVar()
         self.repeated_simulation_checkbox = tk.Checkbutton(self.root, text="Repeated Simulation", variable=self.repeated_simulation_check, command=self.toggle_repeated_simulation)
@@ -378,6 +474,9 @@ class EventManager:
 
         self.repeated_simulation_entry.bind("<KeyRelease>", self.validate_entries)
 
+    '''
+    Summary: Validate the user entires to ensure they are valid
+    '''
     def validate_entries(self, event=None):
         print("Validating entries...")
         event_valid = self.is_event_valid()
@@ -393,16 +492,27 @@ class EventManager:
         self.run_button.config(state='normal' if run_valid else 'disabled')
         self.time_per_observation_add_button.config(state='normal' if time_per_observation_valid else 'disabled')
 
-
+    '''
+    Summary: Validate the selection in the listbox
+    '''
     def validate_listbox_selection(self, event):
         self.remove_button.config(state='normal' if self.event_listbox.curselection() else 'disabled')
 
+    '''
+    Summary: Validate the time per observation entry
+    '''
     def validate_time_per_observation_selection(self, event):
         self.time_per_observation_remove_button.config(state='normal' if self.time_per_observation_listbox.curselection() else 'disabled')
 
+    '''
+    Summary: Validate the time per observation entry
+    '''
     def validate_time_per_observation_entry(self, event):
         self.time_per_observation_add_button.config(state='normal' if self.is_time_per_observation_valid() else 'disabled')
 
+    '''
+    Summary: Validate the event data
+    '''
     def is_event_valid(self):
         event = self.event_entry.get()
         duration = self.duration_entry.get()
@@ -417,7 +527,9 @@ class EventManager:
         print(f"Event: {event}, Duration: {duration}, Proportion: {proportion}")
         return event and duration.isdigit() and int(duration) > 0
 
-
+    '''
+    Summary: Validate the time per observation entry
+    '''
     def is_time_per_observation_valid(self):
         time_per_observation = self.time_per_observation_entry.get()
         valid = time_per_observation.isdigit() and int(time_per_observation) > 0
@@ -425,6 +537,9 @@ class EventManager:
         print(f"Time per observation valid: {valid}")
         return valid
 
+    '''
+    Summary: Check if the run is valid and all the entries are valid
+    '''
     def is_run_valid(self):
         students = self.students_entry.get()
         total_observation_time = self.total_observation_time_entry.get()
@@ -438,10 +553,16 @@ class EventManager:
         print(f"Run valid: {valid}")
         return valid
 
+    '''
+    Summary: Allow the user to toggle if they would like to have repeated simulations
+    '''
     def toggle_repeated_simulation(self):
         self.repeated_simulation_entry.config(state='normal' if self.repeated_simulation_check.get() else 'disabled')
         self.validate_entries()
 
+    '''
+    Summary: Allow the user to choose the output file from their file directory system
+    '''
     def choose_output_file(self):
         file = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
         if file:
@@ -451,6 +572,9 @@ class EventManager:
             self.output_field.config(state='readonly')
         self.validate_entries()
 
+    '''
+    Summary: Add an event to the list of events
+    '''
     def add_event(self):
         print("Adding event...")
         event = self.event_entry.get()
@@ -465,6 +589,9 @@ class EventManager:
             self.event_listbox.insert(tk.END, f"Event: {event}, Duration: {duration}, Proportion: {proportion}")
         self.validate_entries()
 
+    '''
+    Summary: Remove an event from the list of events
+    '''
     def remove_event(self):
         selected_index = self.event_listbox.curselection()
         if selected_index:
@@ -472,6 +599,9 @@ class EventManager:
             self.events.pop(selected_index[0])
         self.validate_entries()
 
+    '''
+    Summary: Add the time per observation to the list of times per observation
+    '''
     def add_time_per_observation(self):
         time_per_observation = self.time_per_observation_entry.get()
         if self.is_time_per_observation_valid():
@@ -480,6 +610,9 @@ class EventManager:
             self.time_per_observation_entry.delete(0, tk.END)
         self.validate_entries()
 
+    '''
+    Summary: Remove the time per observation from the list of times per observation
+    '''
     def remove_time_per_observation(self):
         selected_index = self.time_per_observation_listbox.curselection()
         if selected_index:
@@ -487,6 +620,9 @@ class EventManager:
             self.times_per_observation.pop(selected_index[0])
         self.validate_entries()
 
+    '''
+    Summary: Run the simulation
+    '''
     def run_simulation(self):
         number_of_students = int(self.students_entry.get())
         total_observation_time = int(self.total_observation_time_entry.get())
@@ -504,6 +640,7 @@ class EventManager:
         simulator.run(output_file)
         messagebox.showinfo("Run", "Simulation has been run.")
 
+# Main function to run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
     app = EventManager(root)
