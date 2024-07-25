@@ -1,4 +1,4 @@
-# Parameters for Optimizing Scientific Sampling Using Momentary-time-sampling Simulator (POSSUMS)
+# POSSUMS: Parameters for Optimizing Scientific Sampling Using Momentary-time-sampling Simulator
 ## Details
 
 ## Installation and Running Instructions
